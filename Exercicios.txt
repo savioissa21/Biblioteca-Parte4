@@ -1,0 +1,27 @@
+
+8 - Polimorfismo de Sobrecarga (Overloading):
+Ocorre quando várias versões do mesmo método existem em uma classe, diferenciadas pelo número ou tipo de parâmetros.
+No exemplo das classes Estudante e Professor, temos dois construtores sobrecarregados.
+
+
+Polimorfismo de Substituição (Overriding):
+Ocorre quando um método em uma classe filha tem a mesma assinatura (nome, número de parâmetros e tipo de retorno) que um método na classe pai.
+ As subclasses substituem o comportamento do método herdado.
+No exemplo da classe Livro.
+
+
+9 - Implementação de Regras de Empréstimos
+Para implementar as regras de empréstimos específicas para diferentes tipos de usuários,
+ podemos criar uma hierarquia de classes e definir limites e prazos de empréstimos específicos em cada classe.
+Definir Limites e Prazos de Empréstimos.
+
+Criar uma interface RegraEmprestimo
+Implementar Regras para Cada Tipo de Usuário:
+Para Estudantes,Para Funcionários e Para Professores.
+
+Modificar a Classe Usuarios e suas Subclasses para Usar as Regras:
+Adicionar um atributo RegraEmprestimo na classe Usuarios
+
+Modificar as subclasses para inicializar regraEmprestimo
+Modificar a Classe Emprestimos para Verificar Limites e Prazos, no método de realizar empréstimo
+
