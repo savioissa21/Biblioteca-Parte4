@@ -11,7 +11,6 @@ import java.util.Map;
 
 import Faculdade.Trabalho;
 import Interface.DAO;
-import Obras.Obra;
 
 
 public class TrabalhoDAO implements DAO<Trabalho>{

@@ -29,6 +29,7 @@ import Usuarios.Funcionario;
 import Usuarios.Orientador;
 import Usuarios.Pessoa;
 import Usuarios.PessoaInstanceCreator;
+import View.TelaLogin;
 
 public class Main {
     private static Gson gson = new GsonBuilder()
@@ -48,17 +49,28 @@ public class Main {
     private static ArrayList<Trabalho> trabalhos;
 
     public static void main(String[] args) throws IOException {
-        Scanner sc = new Scanner(System.in);
-        emprestimos = loadFromFile(EMPRESTIMOS_FILE, new TypeToken<ArrayList<Emprestimos>>() {
-        }.getType());
-        livros = loadFromFile(LIVROS_FILE, new TypeToken<ArrayList<Livro>>() {
-        }.getType());
-        usuarios = loadFromFile(USUARIOS_FILE, new TypeToken<ArrayList<Pessoa>>() {
-        }.getType());
-        reservas = loadFromFile(RESERVA_FILE, new TypeToken<ArrayList<Reserva>>() {
-        }.getType());
+        TelaLogin telaLogin = new TelaLogin();
+        Pessoa usuarioLogado = telaLogin.mostrar();
+        
+        if (usuarioLogado == null) {
+            System.out.println("Nenhum usuário logado. Encerrando...");
+            System.exit(0);
+        }
+
+        emprestimos = loadFromFile(EMPRESTIMOS_FILE, new TypeToken<ArrayList<Emprestimos>>() {}.getType());
+        livros = loadFromFile(LIVROS_FILE, new TypeToken<ArrayList<Livro>>() {}.getType());
+        usuarios = loadFromFile(USUARIOS_FILE, new TypeToken<ArrayList<Pessoa>>() {}.getType());
+        reservas = loadFromFile(RESERVA_FILE, new TypeToken<ArrayList<Reserva>>() {}.getType());
+        trabalhos = loadFromFile(TRABALHO_FILE, new TypeToken<ArrayList<Trabalho>>() {}.getType());
+
+        if (usuarioLogado instanceof Funcionario) {
+            menuFuncionario(new Scanner(System.in));
+        } else {
+            menuUsuarioComum(new Scanner(System.in), usuarioLogado);
+        }
 
         Pessoa usuarioAdm = findUsuarioByName("adm");
+
         if (usuarioAdm == null) {
             usuarioAdm = new Funcionario("adm", "123");
             usuarios.add(usuarioAdm);
@@ -67,38 +79,18 @@ public class Main {
         } else {
             System.out.println("Usuário padrão 'adm' já existe.");
         }
-
-        while (true) {
-            System.out.println();
-            System.out.println("Escolha o tipo de usuário:");
-            System.out.println("1. Funcionário");
-            System.out.println("2. Usuário Comum");
-            System.out.println("3. Sair");
-            int opcaoUsuario = sc.nextInt();
-            sc.nextLine();
-
-            if (opcaoUsuario == 3) {
-                sc.close();
-                System.exit(0);
-            }
-
-            System.out.println("Informe o nome de usuário:");
-            String nome = sc.nextLine();
-            System.out.println("Informe a senha:");
-            String senha = sc.nextLine();
-
-            Pessoa usuarioLogado = autenticarUsuario(nome, senha, opcaoUsuario);
-            if (usuarioLogado != null) {
-                if (opcaoUsuario == 1) {
-                    menuFuncionario(sc);
-                } else {
-                    menuUsuarioComum(sc, usuarioLogado);
-                }
-            } else {
-                System.out.println("Login ou senha inválidos.");
-            }
-        }
     }
+
+    private static void menuUsuarioComum(Scanner scanner, Pessoa usuarioLogado) {
+        // Implementar funcionalidades específicas para o usuário comum
+    }
+
+    private static void menuFuncionario(Scanner scanner) {
+        // Implementar funcionalidades específicas para o funcionário
+    }
+
+
+
 
     private static Pessoa autenticarUsuario(String nome, String senha, int tipoUsuario) {
         for (Pessoa usuario : usuarios) {
@@ -112,90 +104,8 @@ public class Main {
         return null;
     }
 
-    private static void menuFuncionario(Scanner sc) {
-        while (true) {
-            System.out.println();
-            System.out.println("Escolha uma opção:");
-            System.out.println("1. Gerenciar livro");
-            System.out.println("2. Gerenciar usuário");
-            System.out.println("3. Gerenciar empréstimos");
-            System.out.println("4. Gerenciar reservas");
-            System.out.println("5. Cadastrar trabalho");
+    
 
-            System.out.println("6. Sair");
-
-            int opcao = sc.nextInt();
-            sc.nextLine();
-
-            switch (opcao) {
-                case 1:
-                    gerenciarLivro(sc);
-                    break;
-                case 2:
-                    gerenciarUsuario(sc);
-                    break;
-                case 3:
-                    gerenciarEmprestimos(sc);
-                    break;
-                case 4:
-                    gerenciarReservas(sc);
-                    break;
-                case 5:
-                    cadastrarTrabalho(sc);
-                    break;
-                case 6:
-                    return; // Volta para o menu anterior
-                default:
-                    System.out.println("Opção inválida. Escolha novamente.");
-                    break;
-            }
-        }
-    }
-
-    private static void menuUsuarioComum(Scanner sc, Pessoa usuarioLogado) {
-        while (true) {
-            System.out.println();
-            System.out.println("Escolha uma opção:");
-            System.out.println("1. Consultar acervo");
-            System.out.println("2. Fazer empréstimo");
-            System.out.println("3. Fazer devolução");
-            System.out.println("4. Fazer reserva");
-            System.out.println("5. Consultar seus empréstimos");
-            System.out.println("6. Consultar suas reservas");
-            System.out.println("7. Sair");
-
-            int opcao = sc.nextInt();
-            sc.nextLine();
-
-            switch (opcao) {
-                case 1:
-                    consultarAcervo();
-                    break;
-                case 2:
-                    realizarEmprestimo(sc);
-                    break;
-                case 3:
-                    realizarDevolucao(sc);
-                    break;
-                case 4:
-                    realizarReserva(sc);
-                    break;
-                case 5:
-                    listarEmprestimosUsuario(usuarioLogado);
-                    break;
-                case 6:
-                    listarReservasUsuario(usuarioLogado);
-                    break;
-                case 7:
-                    System.exit(0);
-                    System.out.println("Saindo");
-                    return;
-                default:
-                    System.out.println("Opção inválida. Escolha novamente.");
-                    break;
-            }
-        }
-    }
 
     private static final int LIMITE_LIVROS_ESTUDANTE = 3;
     private static final int LIMITE_LIVROS_FUNCIONARIO = 6;
@@ -404,36 +314,7 @@ public class Main {
         }
     }
 
-    private static void gerenciarLivro(Scanner sc) {
-        while (true) {
-            System.out.println();
-            System.out.println("Escolha uma opção:");
-            System.out.println("1. Adicionar livro");
-            System.out.println("2. Remover livro");
-            System.out.println("3. Listar livros");
-            System.out.println("4. Voltar");
 
-            int opcao = sc.nextInt();
-            sc.nextLine();
-
-            switch (opcao) {
-                case 1:
-                    adicionarLivro(sc);
-                    break;
-                case 2:
-                    removerLivro(sc);
-                    break;
-                case 3:
-                    listarLivros();
-                    break;
-                case 4:
-                    return;
-                default:
-                    System.out.println("Opção inválida. Escolha novamente.");
-                    break;
-            }
-        }
-    }
 
     private static void adicionarLivro(Scanner sc) {
         System.out.println("Informe o título do livro:");
@@ -476,36 +357,6 @@ public class Main {
         }
     }
 
-    private static void gerenciarUsuario(Scanner sc) {
-        while (true) {
-            System.out.println();
-            System.out.println("Escolha uma opção:");
-            System.out.println("1. Adicionar usuário");
-            System.out.println("2. Remover usuário");
-            System.out.println("3. Listar usuários");
-            System.out.println("4. Voltar");
-
-            int opcao = sc.nextInt();
-            sc.nextLine();
-
-            switch (opcao) {
-                case 1:
-                    adicionarUsuario(sc);
-                    break;
-                case 2:
-                    removerUsuario(sc);
-                    break;
-                case 3:
-                    listarUsuarios();
-                    break;
-                case 4:
-                    return;
-                default:
-                    System.out.println("Opção inválida. Escolha novamente.");
-                    break;
-            }
-        }
-    }
 
     private static void adicionarUsuario(Scanner sc) {
         System.out.println("Informe o nome do usuário:");
@@ -589,17 +440,18 @@ public class Main {
         }
     }
 
+    
     private static void cadastrarTrabalho(Scanner sc) {
         System.out.println("Cadastrar Trabalho: ");
         System.out.print("Título do trabalho: ");
         String titulo = sc.nextLine();
-
+    
         System.out.print("Qual a faculdade: ");
         String faculdade = sc.nextLine();
-
+    
         System.out.print("Qual a data de conclusão (dd/MM/yyyy): ");
         String dataConclusao = sc.nextLine();
-
+    
         SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
         Date dataAtual = null;
         try {
@@ -609,24 +461,24 @@ public class Main {
             return;
         }
         String dataFormatada = formato.format(dataAtual);
-
+    
         System.out.print("Aluno: ");
         String nomeAluno = sc.nextLine();
-
+    
         System.out.print("Orientador: ");
         String nomeOrientador = sc.nextLine();
-
+    
         System.out.print("Curso: ");
         String nomeCurso = sc.nextLine();
-
+    
         System.out.print("Nota: ");
         int score = sc.nextInt();
         sc.nextLine(); // Consome a nova linha restante
-
+    
         System.out.print("Quantidade de votos: ");
         int quantVotos = sc.nextInt();
         sc.nextLine(); // Consome a nova linha restante
-
+    
         Trabalho trabalho = new Trabalho(
                 titulo,
                 new Faculdade(faculdade),
@@ -636,33 +488,33 @@ public class Main {
                 new Curso(nomeCurso),
                 score,
                 quantVotos);
-
+    
         trabalhos.add(trabalho);
         saveToFile(TRABALHO_FILE, trabalhos);
-        System.out.println("Trabalho adicionado com sucesso!");
+        System.out.println("Trabalho cadastrado com sucesso!");
     }
+    
+
 
     private static <T> ArrayList<T> loadFromFile(String filename, Type type) {
         ArrayList<T> list = new ArrayList<>();
         try (FileReader reader = new FileReader(filename)) {
-            T[] data = gson.fromJson(reader, type);
-            if (data != null) {
-                list = new ArrayList<>(Arrays.asList(data));
+            list = gson.fromJson(reader, type);
+            if (list == null) {
+                list = new ArrayList<>();
             }
         } catch (FileNotFoundException e) {
             System.out.println("Arquivo não encontrado, criando um novo.");
         } catch (Exception e) {
             System.out.println("Erro ao carregar o arquivo: " + e.getMessage());
-            // Aqui você pode inicializar a lista para evitar null
-            list = new ArrayList<>();
         }
         return list;
     }
 
     private static <T> void saveToFile(String filename, ArrayList<T> list) {
-        try (FileWriter writer = new FileWriter(filename, false)) { // 'false' sobrescreve o arquivo
+        try (FileWriter writer = new FileWriter(filename, false)) {
             gson.toJson(list, writer);
-            writer.flush(); // Certifique-se de que todos os dados são gravados no arquivo
+            writer.flush();
         } catch (IOException e) {
             System.err.println("Erro ao salvar dados no arquivo: " + e.getMessage());
         }
@@ -677,12 +529,4 @@ public class Main {
         return null;
     }
 
-    private static Livro findLivroByTitle(String titulo) {
-        for (Livro l : livros) {
-            if (l.getTitulo().equalsIgnoreCase(titulo)) {
-                return l;
-            }
-        }
-        return null;
-    }
 }
